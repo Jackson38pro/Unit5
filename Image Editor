@@ -1,0 +1,248 @@
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.File;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+import javax.swing.*;
+
+import org.w3c.dom.css.RGBColor;
+
+
+public class ImageEditorPanel extends JPanel implements KeyListener{
+    
+    Color[][] pixels;
+        int next;
+    boolean quit = false;
+      
+    public ImageEditorPanel() {
+      
+        BufferedImage imageIn = null;
+        try {
+            // the image should be in the main project folder, not in \src or \bin
+            imageIn = ImageIO.read(new File("Weezer_-_Blue_Album.png"));
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(1);
+        }
+        pixels = makeColorArray(imageIn);
+        setPreferredSize(new Dimension(pixels[0].length, pixels.length));
+        setBackground(Color.BLACK);
+        addKeyListener(this);
+        
+    }
+
+    public void paintComponent(Graphics g) {
+        // paints the array pixels onto the screen
+        for (int row = 0; row < pixels.length; row++) {
+            for (int col = 0; col < pixels[0].length; col++) {
+                g.setColor(pixels[row][col]);
+                g.fillRect(col, row, 1, 1);
+            }
+        }
+    }
+
+    public void run() {
+        
+        // call your image-processing methods here OR call them from keyboard event
+        // handling methods
+        // write image-processing methods as pure functions - for example: 
+        //pixels = grayScale(pixels);
+
+       // pixels = highcontrast(pixels);
+       // pixels = flipHorizontal(pixels);
+       // pixels = flipVertical(pixels);
+       // pixels = grayScale(pixels);
+       // pixels = blur(pixels);
+       // pixels = invertcolors(pixels);
+       // pixels = vintage(pixels);
+        repaint();
+    }
+
+    public static Color[][] flipHorizontal(Color[][] pixels){
+        Color[][] flipped = new Color[pixels.length][pixels.length];
+        for (int i = 1; i < pixels.length; i++){
+            for (int r = 1; r<pixels.length; r++){
+             flipped[i][pixels.length-r] = pixels[i][r];
+            }
+        }
+             return flipped;
+        }
+        public static Color[][] flipVertical(Color[][] pixels){
+        Color[][] flipped = new Color[pixels.length][pixels.length];
+        for (int i = 1; i < pixels.length; i++){
+            for (int r = 1; r<pixels.length; r++){
+             flipped[pixels.length-i][r] = pixels[i][r];
+            }
+        }
+             return flipped;
+        }
+         public static Color[][] grayScale(Color[][] pixels){
+        Color[][] grayed = new Color[pixels.length][pixels.length];
+        int gray;
+        for (int i = 1; i < pixels.length; i++){
+            for (int r = 1; r<pixels.length; r++){
+                gray = ((pixels[i][r].getRed() + pixels[i][r].getBlue() + pixels[i][r].getGreen())/3);
+          grayed[i][r] = new Color(gray, gray, gray);
+               
+            }
+        }
+             return grayed;
+        }
+public static Color[][] blur(Color[][] pixels){
+        Color[][] blurred = new Color[pixels.length][pixels.length];
+        int red = 0;
+        int blue = 0;
+        int green = 0;
+        for (int i = 1; i < pixels.length; i++){
+            for (int r = 1; r<pixels.length; r++){
+             if(i>5 && r>5 && r < pixels.length - 5 && i < pixels.length - 5){
+                   for (int row = i -5; row < i + 5; row++){
+                    for (int col = r -5; col < r + 5; col++){
+                        red = red += pixels[row][col].getRed();
+                        blue += pixels[row][col].getBlue();
+                        green += pixels[row][col].getGreen();
+                        
+                    }
+                   }
+                
+         red = red / 100;
+         blue = blue / 100;
+         green = green / 100;
+
+                
+   blurred[i][r] = new Color(red, green, blue);
+
+                }        
+            }
+
+             
+        }
+        return blurred;
+}
+    
+public static Color[][] highcontrast(Color[][] pixels){
+        Color[][] highc = new Color[pixels.length][pixels.length];
+        double red;
+        double green;
+        double blue;
+        for (int i = 1; i < pixels.length; i++){
+            for (int r = 1; r<pixels.length; r++){
+                red = pixels[i][r].getRed() * 1.25;
+                if (red > 255) {red = 255;}
+                green = pixels[i][r].getGreen() * 1.25;
+                if (green>255) {green = 255;}
+                blue = pixels[i][r].getBlue() * 1.25;
+                if (blue > 255){ blue = 255;}
+          highc[i][r] = new Color((int)red,(int)green,(int)blue);
+               
+            }
+        }
+             return highc;
+        }
+        public static Color[][] invertcolors(Color[][] pixels){
+            Color[][] invert = new Color[pixels.length][pixels.length];
+            int red;
+            int green;
+            int blue;
+            for (int i = 1; i < pixels.length; i++){
+                for (int r = 1; r<pixels.length; r++){
+                    red = 255 - pixels[i][r].getRed();
+                    if (red > 255) {red = 255;}
+                    green = 255 - pixels[i][r].getGreen();
+                    if (green>255) {green = 255;}
+                    blue = 255 - pixels[i][r].getBlue();
+                    if (blue > 255){ blue = 255;}
+              invert[i][r] = new Color((int)red,(int)green,(int)blue);
+                   
+                }
+            }
+                 return invert;
+            }
+            public static Color[][] vintage(Color[][] pixels){
+                Color[][] vint = new Color[pixels.length][pixels.length];
+                int red = 0;
+                int green = 0;
+                int blue = 0;
+                int noise;
+                for (int i = 1; i < pixels.length; i++){
+                    for (int r = 1; r<pixels.length; r++){
+                        
+                        noise = (int)(Math.random() * 30);
+                        red = ((int)(.6 * pixels[i][r].getRed()) + noise);
+                        if (red > 255) {red = 255;}
+                  
+                        green = (int)((.4 * pixels[i][r].getGreen()) + noise);
+                        if (green>255) {green = 255;}
+              
+                        blue = (int)((.2 * pixels[i][r].getBlue()) + noise);
+                        if (blue > 255){ blue = 255;}
+                        
+                  vint[i][r] = new Color(red,green,blue);
+                       
+                    }
+                }
+                     return vint;
+                }
+        
+
+  
+    public Color[][] makeColorArray(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        Color[][] result = new Color[height][width];
+        
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                Color c = new Color(image.getRGB(col, row), true);
+                result[row][col] = c;
+            }
+        }
+        // System.out.println("Loaded image: width: " +width + " height: " + height);
+        return result;
+    }
+    
+        @Override
+        public void keyTyped(KeyEvent e) {
+            // note the difference between getKeyChar and getKeyCode
+if (e.getKeyChar() == 'q'){
+quit = true;
+}
+        } 
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_0) {
+                pixels = highcontrast(pixels);
+                repaint();
+                }
+                if (e.getKeyCode() == KeyEvent.VK_1) {
+                    pixels = flipHorizontal(pixels);
+                    repaint();
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_2) {
+                        pixels = flipVertical(pixels);
+                        repaint();
+                        }
+                        if (e.getKeyCode() == KeyEvent.VK_3) {
+                            pixels = grayScale(pixels);
+                            repaint();
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_4) {
+                                pixels = blur(pixels);
+                                repaint();
+                                }
+                                if (e.getKeyCode() == KeyEvent.VK_5) {
+                                    pixels = invertcolors(pixels);
+                                    repaint();
+                                    }
+                                    if (e.getKeyCode() == KeyEvent.VK_6) {
+                                        pixels = vintage(pixels);
+                                        repaint();
+                                        }
+        }
+
+  
+    }
